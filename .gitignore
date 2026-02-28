@@ -1,0 +1,23 @@
+# Environments
+fresh_env/
+env/
+venv/
+.env
+
+# Cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Data and Weights (Too large for Git)
+data/
+weights/
+*.pth
+*.pt
+archive (3)/
+
+# Output and temporary files
+output/
+logs/
+.DS_Store
+sample_images/
