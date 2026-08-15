@@ -23,8 +23,10 @@ os.environ["USE_TORCH"] = "1"
 import sys
 import argparse
 import logging
+import tempfile
 
 import cv2
+import numpy as np
 
 # ═══════════════════════════════════════════════════
 # ▶  CONFIGURATION  (edit here or pass CLI args)
@@ -118,14 +120,48 @@ def build_recognizer(cfg: dict, device: str = None):
 # Main Pipeline Orchestrator
 # ═══════════════════════════════════════════════════
 
+def run_from_array(image_array: np.ndarray, cfg: dict, device: str = None):
+    """
+    Runs all 9 stages on a numpy array.
+    
+    Args:
+        image_array: Input image as numpy array (BGR format)
+        cfg: Configuration dict
+        device: Device for inference ('cpu' or 'cuda')
+    
+    Returns:
+        full_text       : Reconstructed text string.
+        structured_json : Dict with per-line text + confidence.
+    """
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".png")
+    os.close(temp_fd)
+    
+    try:
+        cv2.imwrite(temp_path, image_array)
+        return run(temp_path, cfg, device)
+    finally:
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 def run(image_path: str, cfg: dict, device: str = None):
     """
     Runs all 9 stages on a single image.
+
+    Args:
+        image_path: Path to image file OR numpy array
+        cfg: Configuration dict
+        device: Device for inference
 
     Returns:
         full_text       : Reconstructed text string.
         structured_json : Dict with per-line text + confidence.
     """
+    if isinstance(image_path, np.ndarray):
+        return run_from_array(image_path, cfg, device)
     output_dir = cfg["OUTPUT_DIR"]
     image_name = os.path.basename(image_path)
 

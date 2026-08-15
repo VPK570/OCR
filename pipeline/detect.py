@@ -75,6 +75,13 @@ class CRAFTDetector:
         self._imgproc = ip
 
         # ── Load model ──
+        if not os.path.exists(weights_path):
+            raise FileNotFoundError(
+                f"CRAFT weights not found at: {weights_path}\n"
+                "Download from: https://github.com/clovaai/CRAFT_pytorch/releases\n"
+                "Direct link: https://drive.google.com/file/d/1JkR6qB64ANTBzi3LQpTuntYpC8D3J9aD/view\n"
+                "Save as: CRAFT-pytorch/weights/craft_mlt_25k.pth"
+            )
         self._log.info(f"Loading CRAFT model from {weights_path} ...")
         self.net = CRAFT()
         map_loc = "cuda" if self.cuda else "cpu"
